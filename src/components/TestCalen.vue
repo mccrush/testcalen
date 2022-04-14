@@ -74,7 +74,21 @@
           'text-purpur': getDayOfWeek(selectYear, selectMonthNumber, i) >= 6,
         }"
       >
-        {{ i }}
+        <div>{{ i }}</div>
+        <div class="list-of-events">
+          <div
+            v-for="event in getEvents(i)"
+            :key="'eid' + event.id"
+            class="event"
+            :class="{
+              'event-easy': event.type === 'easy',
+              'event-medium': event.type === 'medium',
+              'event-hard': event.type === 'hard',
+            }"
+          >
+            {{ event.title }}
+          </div>
+        </div>
       </div>
       <div
         v-for="i in 7 -
@@ -113,6 +127,12 @@
 import moment from "moment";
 
 export default {
+  props: {
+    events: {
+      type: Array,
+      default: [],
+    },
+  },
   data() {
     return {
       daysOfWeek: [
@@ -160,6 +180,13 @@ export default {
         year--;
       }
       return moment(year + "-" + month, "YYYY-MM").daysInMonth();
+    },
+    getEvents(date) {
+      //console.log("date", new Date(this.events[0].date).getDate());
+      //return this.events;
+      return this.events.filter(
+        (event) => new Date(event.date).getDate() === date
+      );
     },
     monthUp() {
       console.log("Clik Up");
@@ -235,6 +262,7 @@ export default {
 
 .day {
   border: 1px solid darkgrey;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: bold;
   margin: 1px;
@@ -251,21 +279,55 @@ export default {
   height: calc((100vh - 158px) / 6);
 }
 
+/* Evenst */
+
+.event {
+  border-radius: 4px;
+  margin-top: 2px;
+  overflow: hidden;
+  padding: 3px;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.event:hover {
+  overflow: visible;
+  position: relative;
+  width: fit-content;
+}
+
+.event-easy {
+  background-color: #dcedc8;
+  color: #33691e;
+}
+
+.event-medium {
+  background-color: #fff9c4;
+  color: #f57f17;
+}
+
+.event-hard {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+}
+
 /* Вспомогательные классы */
 .text-grey {
   color: #d5d5d5;
 }
 
 .text-darkgrey {
-  color: #607d8b;
+  color: #757575;
 }
 
 .text-purpur {
-  color: #3f51b5;
+  color: #673ab7;
 }
 
 .text-green {
-  color: #8bc34a;
+  color: #33691e;
 }
 
 .border-grey {
