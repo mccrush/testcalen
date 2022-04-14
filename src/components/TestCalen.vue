@@ -1,12 +1,12 @@
 <template>
   <div id="testCalen">
     <div class="row row-select">
-      <div class="btn btn-left">&lsaquo;</div>
+      <div class="btn btn-left" @click="monthDown">&lsaquo;</div>
       <div id="month-name">
-        {{ selectMonth }}
-        <span v-if="selectYear !== tecYear">{{ selectYear }}</span>
+        {{ selectMonthName }}
+        <span v-if="selectYear != tecYear">{{ selectYear }}</span>
       </div>
-      <div class="btn btn-right">&rsaquo;</div>
+      <div class="btn btn-right" @click="monthUp">&rsaquo;</div>
     </div>
     <div class="row row-days-name">
       <div
@@ -21,7 +21,8 @@
     <div class="row row-calendar">
       <div v-for="i in 31" :key="'day-' + i" class="day"></div>
     </div>
-    <h2>{{ tecYear }}</h2>
+    <h2>Текущий год {{ tecYear }}</h2>
+    <h2>Выбранный год {{ selectYear }}</h2>
   </div>
 </template>
 
@@ -41,13 +42,36 @@ export default {
         "Воскресенье",
       ],
       tecYear: moment().format("YYYY"),
-      tecMonth: moment().format("MMMM"),
+      tecMonthNumber: moment().format("M") - 1,
       selectYear: moment().format("YYYY") || "",
-      selectMonth: moment().format("MMMM") || "",
+      selectMonthNumber: moment().format("M") - 1 || "",
     };
   },
   mounted() {
     moment.locale("ru");
+  },
+  computed: {
+    selectMonthName() {
+      return moment().month(this.selectMonthNumber).format("MMMM");
+    },
+  },
+  methods: {
+    monthUp() {
+      if (this.selectMonthNumber === 11) {
+        this.selectYear++;
+        this.selectMonthNumber = 0;
+      } else {
+        this.selectMonthNumber++;
+      }
+    },
+    monthDown() {
+      if (this.selectMonthNumber === 0) {
+        this.selectYear--;
+        this.selectMonthNumber = 11;
+      } else {
+        this.selectMonthNumber--;
+      }
+    },
   },
 };
 </script>
