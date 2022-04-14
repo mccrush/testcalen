@@ -86,7 +86,7 @@
               'event-hard': event.type === 'hard',
             }"
           >
-            {{ event.title }}
+            {{ getEventTime(event) }} {{ event.title }}
           </div>
         </div>
       </div>
@@ -113,13 +113,6 @@
       </div>
     </div>
     <!-- Конец Календарь -->
-    <h4>
-      Дней в выбраном месяце
-      {{ getDaysInMonth(selectYear, selectMonthNumber + 1) }}
-    </h4>
-    <h4>День недели 1 числа {{ getNumberOfRows }}</h4>
-    <h4>Текущий год {{ tecYear }}</h4>
-    <h4>Выбранный год {{ selectYear }}</h4>
   </div>
 </template>
 
@@ -151,13 +144,14 @@ export default {
       selectMonthNumber: moment().get("month") || "",
     };
   },
-  mounted() {
-    moment.locale("ru");
-  },
   computed: {
     getSelectMonthName() {
+      if (moment.locale() !== "ru") {
+        moment.locale("ru");
+      }
       return moment().month(this.selectMonthNumber).format("MMMM");
     },
+
     getNumberOfRows() {
       if (this.getDayOfWeek(this.selectYear, this.selectMonthNumber, 1) >= 6) {
         return 6;
@@ -174,6 +168,7 @@ export default {
         return new Date(year, month, date).getDay();
       }
     },
+
     getDaysInMonth(year, month) {
       if (month === 0) {
         month = 12;
@@ -181,15 +176,27 @@ export default {
       }
       return moment(year + "-" + month, "YYYY-MM").daysInMonth();
     },
+
     getEvents(date) {
-      //console.log("date", new Date(this.events[0].date).getDate());
-      //return this.events;
       return this.events.filter(
-        (event) => new Date(event.date).getDate() === date
+        (event) =>
+          new Date(event.date).getFullYear() === this.selectYear &&
+          new Date(event.date).getMonth() === this.selectMonthNumber &&
+          new Date(event.date).getDate() === date
       );
     },
+
+    getEventTime(event) {
+      return (
+        new Date(event.date).getHours() +
+        ":" +
+        (new Date(event.date).getMinutes() > 9
+          ? new Date(event.date).getMinutes()
+          : "0" + new Date(event.date).getMinutes())
+      );
+    },
+
     monthUp() {
-      console.log("Clik Up");
       if (this.selectMonthNumber === 11) {
         this.selectYear++;
         this.selectMonthNumber = 0;
@@ -197,8 +204,8 @@ export default {
         this.selectMonthNumber++;
       }
     },
+
     monthDown() {
-      console.log("Clik Down");
       if (this.selectMonthNumber === 0) {
         this.selectYear--;
         this.selectMonthNumber = 11;
