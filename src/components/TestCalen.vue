@@ -1,13 +1,17 @@
 <template>
   <div id="testCalen">
+    <!-- Смена месяца -->
     <div class="row row-select">
       <div class="btn btn-left" @click="monthDown">&lsaquo;</div>
       <div id="month-name">
-        {{ getSelectMonthName }} ({{ selectMonthNumber }})
-        <span v-if="selectYear != tecYear">{{ selectYear }}</span>
+        {{ getSelectMonthName }}
+        <span v-if="selectYear !== tecYear">{{ selectYear }}</span>
       </div>
       <div class="btn btn-right" @click="monthUp">&rsaquo;</div>
     </div>
+    <!-- Конец Смена месяца -->
+
+    <!-- Дни недели -->
     <div class="row row-days-name">
       <div
         v-for="(day, index) in daysOfWeek"
@@ -18,6 +22,9 @@
         {{ day }}
       </div>
     </div>
+    <!-- Конец Дни недели -->
+
+    <!-- Календарь -->
     <div class="row row-calendar">
       <div
         v-for="i in getDayOfWeek(selectYear, selectMonthNumber, 1) - 1"
@@ -91,6 +98,7 @@
         {{ i }}
       </div>
     </div>
+    <!-- Конец Календарь -->
     <h4>
       Дней в выбраном месяце
       {{ getDaysInMonth(selectYear, selectMonthNumber + 1) }}
@@ -140,7 +148,6 @@ export default {
   },
   methods: {
     getDayOfWeek(year, month, date) {
-      console.log("year", year, " month", month, " date", date);
       if (new Date(year, month, date).getDay() === 0) {
         return 7;
       } else {
@@ -148,6 +155,10 @@ export default {
       }
     },
     getDaysInMonth(year, month) {
+      if (month === 0) {
+        month = 12;
+        year--;
+      }
       return moment(year + "-" + month, "YYYY-MM").daysInMonth();
     },
     monthUp() {
@@ -182,7 +193,6 @@ export default {
 }
 
 /* Строка смены месяца */
-
 .row-select {
   display: flex;
 }
@@ -192,12 +202,10 @@ export default {
   border: none;
   cursor: pointer;
   font-size: 32px;
-  /* border: 1px solid grey; */
   padding: 0 8px 0 8px;
 }
 
 #month-name {
-  /* border: 1px solid darkgrey; */
   font-size: 20px;
   font-weight: bold;
   padding: 10px 4px 0 4px;
@@ -205,25 +213,21 @@ export default {
 }
 
 /* Строка дней недели */
-
 .row-days-name {
   display: flex;
   margin-top: 16px;
 }
 
 .days-name {
-  /* border: 1px solid darkgrey; */
   font-size: 12px;
   font-weight: bold;
-  /* height: 24px; */
   padding: 4px;
   text-align: right;
   text-transform: uppercase;
-  width: calc(100% / 7); /* 14.28%; */
+  width: calc(100% / 7);
 }
 
 /* Строка календаря */
-
 .row-calendar {
   display: flex;
   flex-wrap: wrap;
