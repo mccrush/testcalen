@@ -3,7 +3,7 @@
     <div class="row row-select">
       <div class="btn btn-left" @click="monthDown">&lsaquo;</div>
       <div id="month-name">
-        {{ selectMonthName }}
+        {{ getSelectMonthName }}
         <span v-if="selectYear != tecYear">{{ selectYear }}</span>
       </div>
       <div class="btn btn-right" @click="monthUp">&rsaquo;</div>
@@ -19,10 +19,24 @@
       </div>
     </div>
     <div class="row row-calendar">
-      <div v-for="i in 31" :key="'day-' + i" class="day"></div>
+      <div
+        v-for="i in getDaysInMonth"
+        :key="'day-' + i"
+        class="day border-grey day-height-5"
+        :class="{
+          'border-darkgrey text-green':
+            i === tecDate &&
+            selectMonthNumber === tecMonthNumber &&
+            selectYear === tecYear,
+        }"
+      >
+        {{ i }}
+      </div>
     </div>
-    <h2>Текущий год {{ tecYear }}</h2>
-    <h2>Выбранный год {{ selectYear }}</h2>
+    <h4>Дней в текущем месяце {{ getDaysInMonth }}</h4>
+    <h4>День недели 1 числа {{ getNumberOfRows }}</h4>
+    <h4>Текущий год {{ tecYear }}</h4>
+    <h4>Выбранный год {{ selectYear }}</h4>
   </div>
 </template>
 
@@ -41,18 +55,37 @@ export default {
         "Суббота",
         "Воскресенье",
       ],
-      tecYear: moment().format("YYYY"),
-      tecMonthNumber: moment().format("M") - 1,
-      selectYear: moment().format("YYYY") || "",
-      selectMonthNumber: moment().format("M") - 1 || "",
+      tecYear: moment().get("year"),
+      tecMonthNumber: moment().get("month"),
+      tecDate: moment().get("date"),
+      selectYear: moment().get("year") || "",
+      selectMonthNumber: moment().get("month") || "",
     };
   },
   mounted() {
     moment.locale("ru");
   },
   computed: {
-    selectMonthName() {
+    getSelectMonthName() {
       return moment().month(this.selectMonthNumber).format("MMMM");
+    },
+    getDaysInMonth() {
+      return moment(
+        this.selectYear + "-" + (this.selectMonthNumber + 1),
+        "YYYY-MM"
+      ).daysInMonth();
+    },
+    getNumberOfRows() {
+      const dayOfWeek = new Date(
+        this.selectYear,
+        this.selectMonthNumber,
+        1
+      ).getDay();
+      if (dayOfWeek === 6 || dayOfWeek === 0) {
+        return 6;
+      } else {
+        return 5;
+      }
     },
   },
   methods: {
@@ -120,7 +153,7 @@ export default {
   font-size: 12px;
   font-weight: bold;
   /* height: 24px; */
-  padding: 4px 4px;
+  padding: 4px;
   text-align: right;
   text-transform: uppercase;
   width: calc(100% / 7); /* 14.28%; */
@@ -135,13 +168,40 @@ export default {
 
 .day {
   border: 1px solid darkgrey;
-  height: 64px;
+  font-size: 12px;
+  font-weight: bold;
   margin: 1px;
+  padding: 4px;
+  text-align: right;
   width: calc((100% - 14px) / 7);
+}
+
+.day-height-5 {
+  height: calc((100vh - 158px) / 5);
+}
+
+.day-height-6 {
+  height: calc((100vh - 158px) / 6);
 }
 
 /* Вспомогательные классы */
 .text-grey {
   color: #d5d5d5;
+}
+
+.text-purpur {
+  color: #3f51b5;
+}
+
+.text-green {
+  color: #8bc34a;
+}
+
+.border-grey {
+  border: 1px solid #d5d5d5;
+}
+
+.border-darkgrey {
+  border: 1px solid #607d8b;
 }
 </style>
