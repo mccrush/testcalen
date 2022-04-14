@@ -3,7 +3,7 @@
     <div class="row row-select">
       <div class="btn btn-left" @click="monthDown">&lsaquo;</div>
       <div id="month-name">
-        {{ getSelectMonthName }}
+        {{ getSelectMonthName }} ({{ selectMonthNumber }})
         <span v-if="selectYear != tecYear">{{ selectYear }}</span>
       </div>
       <div class="btn btn-right" @click="monthUp">&rsaquo;</div>
@@ -20,20 +20,81 @@
     </div>
     <div class="row row-calendar">
       <div
-        v-for="i in getDaysInMonth"
-        :key="'day-' + i"
-        class="day border-grey day-height-5"
+        v-for="i in getDayOfWeek(selectYear, selectMonthNumber, 1) - 1"
+        :key="'day-before-' + i"
+        class="day border-grey"
         :class="{
+          'bg-grey text-darkgrey':
+            (selectMonthNumber <= tecMonthNumber && selectYear <= tecYear) ||
+            selectYear < tecYear,
+          'day-height-6': getNumberOfRows === 6,
+          'day-height-5': getNumberOfRows === 5,
+          'text-purpur':
+            getDayOfWeek(
+              selectYear,
+              selectMonthNumber - 1,
+              getDaysInMonth(selectYear, selectMonthNumber) -
+                getDayOfWeek(selectYear, selectMonthNumber, 1) +
+                i +
+                1
+            ) >= 6,
+        }"
+      >
+        {{
+          getDaysInMonth(selectYear, selectMonthNumber) -
+          getDayOfWeek(selectYear, selectMonthNumber, 1) +
+          i +
+          1
+        }}
+      </div>
+      <div
+        v-for="i in getDaysInMonth(selectYear, selectMonthNumber + 1)"
+        :key="'day-' + i"
+        class="day border-grey"
+        :class="{
+          'bg-grey text-darkgrey':
+            (i < tecDate &&
+              selectMonthNumber === tecMonthNumber &&
+              selectYear <= tecYear) ||
+            (selectMonthNumber < tecMonthNumber && selectYear <= tecYear) ||
+            selectYear < tecYear,
           'border-darkgrey text-green':
             i === tecDate &&
             selectMonthNumber === tecMonthNumber &&
             selectYear === tecYear,
+          'day-height-6': getNumberOfRows === 6,
+          'day-height-5': getNumberOfRows === 5,
+          'text-purpur': getDayOfWeek(selectYear, selectMonthNumber, i) >= 6,
+        }"
+      >
+        {{ i }}
+      </div>
+      <div
+        v-for="i in 7 -
+        getDayOfWeek(
+          selectYear,
+          selectMonthNumber,
+          getDaysInMonth(selectYear, selectMonthNumber + 1)
+        )"
+        :key="'day-after-' + i"
+        class="day border-grey"
+        :class="{
+          'bg-grey text-darkgrey':
+            (selectMonthNumber < tecMonthNumber && selectYear <= tecYear) ||
+            selectYear < tecYear,
+          'day-height-6': getNumberOfRows === 6,
+          'day-height-5': getNumberOfRows === 5,
+          'text-purpur':
+            getDayOfWeek(selectYear, selectMonthNumber + 1, i) >= 6,
         }"
       >
         {{ i }}
       </div>
     </div>
-    <h4>Дней в текущем месяце {{ getDaysInMonth }}</h4>
+    <h4>
+      Дней в выбраном месяце
+      {{ getDaysInMonth(selectYear, selectMonthNumber + 1) }}
+    </h4>
     <h4>День недели 1 числа {{ getNumberOfRows }}</h4>
     <h4>Текущий год {{ tecYear }}</h4>
     <h4>Выбранный год {{ selectYear }}</h4>
@@ -69,19 +130,8 @@ export default {
     getSelectMonthName() {
       return moment().month(this.selectMonthNumber).format("MMMM");
     },
-    getDaysInMonth() {
-      return moment(
-        this.selectYear + "-" + (this.selectMonthNumber + 1),
-        "YYYY-MM"
-      ).daysInMonth();
-    },
     getNumberOfRows() {
-      const dayOfWeek = new Date(
-        this.selectYear,
-        this.selectMonthNumber,
-        1
-      ).getDay();
-      if (dayOfWeek === 6 || dayOfWeek === 0) {
+      if (this.getDayOfWeek(this.selectYear, this.selectMonthNumber, 1) >= 6) {
         return 6;
       } else {
         return 5;
@@ -89,7 +139,19 @@ export default {
     },
   },
   methods: {
+    getDayOfWeek(year, month, date) {
+      console.log("year", year, " month", month, " date", date);
+      if (new Date(year, month, date).getDay() === 0) {
+        return 7;
+      } else {
+        return new Date(year, month, date).getDay();
+      }
+    },
+    getDaysInMonth(year, month) {
+      return moment(year + "-" + month, "YYYY-MM").daysInMonth();
+    },
     monthUp() {
+      console.log("Clik Up");
       if (this.selectMonthNumber === 11) {
         this.selectYear++;
         this.selectMonthNumber = 0;
@@ -98,6 +160,7 @@ export default {
       }
     },
     monthDown() {
+      console.log("Clik Down");
       if (this.selectMonthNumber === 0) {
         this.selectYear--;
         this.selectMonthNumber = 11;
@@ -189,6 +252,10 @@ export default {
   color: #d5d5d5;
 }
 
+.text-darkgrey {
+  color: #607d8b;
+}
+
 .text-purpur {
   color: #3f51b5;
 }
@@ -203,5 +270,9 @@ export default {
 
 .border-darkgrey {
   border: 1px solid #607d8b;
+}
+
+.bg-grey {
+  background-color: #d5d5d5;
 }
 </style>
