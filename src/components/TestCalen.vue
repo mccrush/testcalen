@@ -2,7 +2,10 @@
   <div id="testCalen">
     <div class="row row-select">
       <div class="btn btn-left">&lsaquo;</div>
-      <div id="month-name">Апрель 2020</div>
+      <div id="month-name">
+        {{ selectMonth }}
+        <span v-if="selectYear !== tecYear">{{ selectYear }}</span>
+      </div>
       <div class="btn btn-right">&rsaquo;</div>
     </div>
     <div class="row row-days-name">
@@ -18,10 +21,13 @@
     <div class="row row-calendar">
       <div v-for="i in 31" :key="'day-' + i" class="day"></div>
     </div>
+    <h2>{{ tecYear }}</h2>
   </div>
 </template>
 
 <script>
+import moment from "moment";
+
 export default {
   data() {
     return {
@@ -34,7 +40,14 @@ export default {
         "Суббота",
         "Воскресенье",
       ],
+      tecYear: moment().format("YYYY"),
+      tecMonth: moment().format("MMMM"),
+      selectYear: moment().format("YYYY") || "",
+      selectMonth: moment().format("MMMM") || "",
     };
+  },
+  mounted() {
+    moment.locale("ru");
   },
 };
 </script>
@@ -47,6 +60,8 @@ export default {
   height: calc(100vh - 48px);
   padding: 16px;
 }
+
+/* Строка смены месяца */
 
 .row-select {
   display: flex;
@@ -69,6 +84,8 @@ export default {
   text-transform: uppercase;
 }
 
+/* Строка дней недели */
+
 .row-days-name {
   display: flex;
   margin-top: 16px;
@@ -84,6 +101,8 @@ export default {
   text-transform: uppercase;
   width: calc(100% / 7); /* 14.28%; */
 }
+
+/* Строка календаря */
 
 .row-calendar {
   display: flex;
